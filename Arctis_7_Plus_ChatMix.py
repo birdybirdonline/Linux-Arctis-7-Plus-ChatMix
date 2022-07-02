@@ -10,6 +10,9 @@ import usb.core
 
 class Arctis7PlusChatMix:
     def __init__(self):
+
+        signal.signal(signal.SIGTERM, self._handle_sigterm)
+        
         # identify the arctis 7+ device
         try:
             self.dev=usb.core.find(idVendor=0x1038, idProduct=0x220e)
@@ -152,7 +155,6 @@ class Arctis7PlusChatMix:
                 self.dieGracefully()
     
     def __handle_sigterm(self, sig, frame):
-
         self.dieGracefully()
 
     def dieGracefully(self):

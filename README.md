@@ -20,20 +20,25 @@ and "Arctis 7+ Game" respectively, which the user can then assign accordingly as
 The script then listens to the headset's USB dongle interrupt signals and interprets this in a way that can be meaningfully converted 
 to adjust the audio accordingly when the user moves the dial on the headset.
 
+<br>
 
 ## Requirements
+<br>
 
-The service itself depends on the [PyUSB]https://github.com/walac/pyusb package. 
+The service itself depends on the [PyUSB](https://github.com/walac/pyusb) package. 
 
 In order for the VAC to be initialized and for the volumes to be controlled, the system requires **Pipewire** (and the underlying **PulseAudio**)
 which are both fairly common on Linux systems out of the box.
 
+<br>
+
 
 ## Implementation - How it works
+<br>
 
 The service first initializes the VAC by making direct calls to PulseWire `pw-cli` to create a `nodes` and pipe them to the default audio device.
 
-The service relies on the [PyUSB]https://github.com/walac/pyusb package to read the interrupts from the headset's usb dongle.
+The service relies on the [PyUSB](https://github.com/walac/pyusb) package to read the interrupts from the headset's usb dongle.
 
 The headset sends three bits, the second and third of which are the volume values for the dial's two directions (toward 'Chat' / down, toward 'Game' up).
 
@@ -46,6 +51,8 @@ The service will automatically set "Arctis 7+ Game" as the default device on sta
 # Acknowledgements
 
 With great thanks to:
-- [awth13]https://github.com/awth13, especially for contributions in creation of our rules.d and systemd configuration and for wrestling with ALSA in our early attempts
-- [Alexandra Zaharia's]https://github.com/alexandra-zaharia excellent [article]https://alexandra-zaharia.github.io/posts/stopping-python-systemd-service-cleanly for the clear advice on good practices for sigterm SIGINT/SIGTERM & logging
+- [awth13](https://github.com/awth13), especially for contributions in creation of our rules.d and systemd configuration and for wrestling with ALSA in our early attempts
+- [Alexandra Zaharia's](https://github.com/alexandra-zaharia) excellent [article](https://alexandra-zaharia.github.io/posts/stopping-python-systemd-service-cleanly) for the clear advice on good practices for sigterm SIGINT/SIGTERM & logging
+- [PyUSB's creators](https://github.com/pyusb) for [PyUSB](https://github.com/pyusb/pyusb) itself
+- Honorable mention: [this reddit thread for clueing me in to reading the USB input!](https://www.reddit.com/r/steelseries/comments/s4uzos/arctis_7_on_linux_sonar_workaround/hu51jjy/)
 
