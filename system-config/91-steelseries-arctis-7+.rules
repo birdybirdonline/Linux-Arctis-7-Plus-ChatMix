@@ -1,0 +1,5 @@
+# FIX: currently allowing read/write access to everyone
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1038", ATTRS{idProduct}=="220e", MODE="0666"
+
+ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="1038", ATTRS{idProduct}=="220e", TAG+="systemd", ENV{SYSTEMD_ALIAS}="/dev/arctis7"
+ACTION=="remove", SUBSYSTEM=="usb", ENV{PRODUCT}=="1038/220e/*", TAG+="systemd"

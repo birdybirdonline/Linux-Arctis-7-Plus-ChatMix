@@ -1,0 +1,12 @@
+[Unit]
+Description=Arctis 7+ ChatMix
+BindsTo=dev-arctis7.device
+After=dev-arctis7.device
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 %h/.local/bin/Arctis_7_Plus_ChatMix.py
+Restart=on-failure
+
+[Install]
+WantedBy=dev-arctis7.device
