@@ -38,12 +38,10 @@ class Arctis7PlusChatMix:
             USB device's interface or endpoint. Shutting down...""")
             self.die_gracefully()
 
-        self.kernel_attached = True
-
         # detach if the device is active
         if self.dev.is_kernel_driver_active(self.interface_num):
             self.dev.detach_kernel_driver(self.interface_num)
-            self.kernel_attached = False
+
         try:
             self.VAC = self._init_VAC()
         except Exception as e:
@@ -101,8 +99,7 @@ class Arctis7PlusChatMix:
             if destroy_a7p_game == 0 or destroy_a7p_chat == 0:
                 raise Exception
         except Exception as e:
-            self.log.info("""Attempted to destroy sinks at init
-             but sinks did not already exist""")
+            self.log.info("""Attempted to destroy old VAC sinks at init but none existed""")
 
         # Instantiate our virtual sinks - Arctis_Chat and Arctis_Game
         try:
@@ -131,7 +128,7 @@ class Arctis7PlusChatMix:
         except Exception as E:
             self.log.error("""Failure to create node adapter - 
             Arctis_Chat virtual device could not be created""", exc_info=True)
-            self.die_gracefully(sink_fail=True)
+            self.die_gracefully(sink_creation_fail=True)
 
         #route the virtual sink's L&R channels to the default system output's LR
         try:
@@ -182,16 +179,16 @@ class Arctis7PlusChatMix:
                 pass
             except usb.core.USBError:
                 self.log.error("USB input/output error - likely disconnect")
-                self.kernel_attached=True
                 self.die_gracefully()
             except KeyboardInterrupt:
                 self.log.info("Keyboard Interrupt signal, terminating...")
-                self.die_gracefully()
+                return self.die_gracefully()
+
     
     def __handle_sigterm(self, sig, frame):
         self.die_gracefully()
 
-    def die_gracefully(self, sink_fail=False):
+    def die_gracefully(self, sink_creation_fail=False):
         """Kill the process and remove the VACs
         on fatal exceptions or SIGTERM / SIGINT
         """
@@ -204,11 +201,11 @@ class Arctis7PlusChatMix:
         os.system(f"pactl set-default-sink {self.system_default_sink}")
 
         # cleanup virtual sinks if they exist
-        if sink_fail == False:
+        if sink_creation_fail == False:
             os.system("pw-cli destroy Arctis_Game 1>/dev/null")
             os.system("pw-cli destroy Arctis_Chat 1>/dev/null")
-        if self.kernel_attached == False:
-            self.dev.attach_kernel_driver(self.interface)
+        if not self.dev.is_kernel_driver_active(self.interface_num):
+            self.dev.finalize()
         sys.exit(0)
 
 # init
