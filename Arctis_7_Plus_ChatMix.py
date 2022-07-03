@@ -64,33 +64,32 @@ class Arctis7PlusChatMix:
         # get the default sink id from pactl
         self.system_default_sink = os.popen("pactl get-default-sink").read().strip()
         self.log.info(f"default sink identified as {self.system_default_sink}")
+
+        # attempt to identify an Arctis sink via pactl
         try:
-            # use grep to identify the sink with arctis in the name, case insensitive
-            try:
-                self.log.info(f"identifying Arctis device sink")
-                pactl_grep = os.popen("pactl list short sinks | grep -i Arctis").readlines()
-            except Exception as e:
-                self.log.info("Couldn't find an Arctis device.")
-                self.die_gracefully()
-                
-            # split the arctis line 
+            self.log.info("identifying Arctis device sink")
+            pactl_short_sinks = os.popen("pactl list short sinks").readlines()
+            self.log.info(pactl_short_sinks)
+            # grab any elements from list of pactl sinks that are Arctis 7
+            arctis = re.compile('.*[aA]rctis.*7')
+            arctis_sink = list(filter(arctis.match, pactl_short_sinks))[0] 
+
+            # split the arctis line on tabs (which form table given by 'pactl short sinks')
             tabs_pattern = re.compile(r'\t')
-            tabs_re = re.split(tabs_pattern, pactl_grep[0])
+            tabs_re = re.split(tabs_pattern, arctis_sink)
 
-            try:
-                arctis_pattern = re.compile(r'arctis',flags=re.IGNORECASE)
-                arctis_re = re.search(arctis_pattern, tabs_re[1])
-                default_sink = arctis_re.string
-                self.log.info(f"Arctis sink identified as {default_sink}")
-            except Exception as e:
-                log.error.info("""Something wrong with Arctis 
-                definition in pactl list short sinks""")
-                self.die_gracefully()
+            # skip first element of tabs_re (sink's ID which is not persistent)
+            arctis_device = tabs_re[1]
+            self.log.info(f"Arctis sink identified as {arctis_device}")
+            default_sink = arctis_device
 
-        except Exception:
-            self.log.error("""Failure detecting default sink - likely your soundcard isn't 
-            recognized by ALSA or there is a permissions error""")
+        except Exception as e:
+            self.log.error("""Something wrong with Arctis definition 
+            in pactl list short sinks regex matching.
+            Likely no match found for device, check traceback.
+            """, exc_info=True)
             self.die_gracefully()
+
 
         # Destroy virtual sinks if they already existed incase of previous failure:
         try:
