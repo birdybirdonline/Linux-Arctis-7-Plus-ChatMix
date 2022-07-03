@@ -32,6 +32,18 @@ which are both fairly common on modern Linux systems out of the box.
 
 <br>
 
+## Installation
+<br>
+
+Run `install-a7pcm.sh` as your desktop user in the project root directory. You may need to provide your `sudo` password during installation for copying the udev rule for your device.
+
+To uninstall, set the `UNINSTALL` environment variable while calling the install script, e.g.,
+
+```bash
+UNINSTALL= ./install-a7pcm.sh
+```
+
+<br>
 
 ## Implementation - How it works
 <br>
