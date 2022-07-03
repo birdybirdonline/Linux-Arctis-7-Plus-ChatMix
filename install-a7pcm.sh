@@ -17,10 +17,10 @@ UDEV_DIR="/etc/udev/rules.d/"
 function cleanup {
     echo
     echo "Cleaning up:"
+    sudo rm -vf "${UDEV_DIR}${UDEV_CONFIG}"
     rm -f "$UDEV_CONFIG"
     rm -vf "${SCRIPT_DIR}${SCRIPT}"
     rm -vf "${SYSTEMD_DIR}${SYSTEMD_CONFIG}"
-    sudo rm -vf "${UDEV_DIR}${UDEV_CONFIG}"
     systemctl --user disable "$SYSTEMD_CONFIG"
 }
 
@@ -44,6 +44,7 @@ echo "You may need to provide your sudo password for this step."
 envsubst < "${CONFIG_DIR}${UDEV_CONFIG}" > "$UDEV_CONFIG"
 sudo cp "$UDEV_CONFIG" "$UDEV_DIR" || \
     { echo "FATAL: Failed to copy $UDEV_CONFIG" ; cleanup ; exit 1;}
+sudo udevadm control --reload
 rm -f "$UDEV_CONFIG"
 
 echo
