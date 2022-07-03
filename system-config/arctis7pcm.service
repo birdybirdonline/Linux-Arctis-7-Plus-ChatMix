@@ -3,12 +3,14 @@ Description=Arctis 7+ ChatMix
 Requisite=dev-arctis7.device
 BindsTo=dev-arctis7.device
 After=dev-arctis7.device
+StartLimitIntervalSec=1m
+StartLimitBurst=5
 
 [Service]
 Type=simple
 ExecStart=/usr/bin/python3 %h/.local/bin/Arctis_7_Plus_ChatMix.py
 Restart=on-failure
-Environment="XDG_RUNTIME_DIR=/run/user/%U"
+RestartSec=1
 
 [Install]
 WantedBy=dev-arctis7.device

@@ -1,5 +1,15 @@
 # Linux-Arctis-7-Plus-ChatMix
 
+##***Important Licensing Notice**##
+
+`Linux-Arctis-7-Plus-Chatmix` uses the GPL license. While the GPL license does permit commercial use,
+it is **strongly discouraged** to reuse the work herein for any for-profit purpose as it relates to the usage
+of a third party proprietary hardware device. 
+
+The device itself has not been reverse-engineered for this purpose, nor has the proprietary GG Sonar Software typically
+required to use it. 
+
+
 ## Overview
 <br>
 The SteelSeries Arctis series of headsets include a hardware modulation knob for 'chatmix' on the headset.
@@ -35,13 +45,22 @@ which are both fairly common on modern Linux systems out of the box.
 ## Installation
 <br>
 
+Python 3 & [PyUSB](https://github.com/pyusb/pyusb) required. 
+
 Run `install-a7pcm.sh` as your desktop user in the project root directory. You may need to provide your `sudo` password during installation for copying the udev rule for your device.
+
+**DISCONNECT DEVICE BEFORE INSTALLING**
 
 To uninstall, set the `UNINSTALL` environment variable while calling the install script, e.g.,
 
 ```bash
 UNINSTALL= ./install-a7pcm.sh
 ```
+
+**RECONNECT DEVICE ONCE INSTALL IS COMPLETE**
+
+There may be a short delay before the device becomes available after reconnecting. Use `systemctl --user status arctis7pcm.service` to check the service
+is running properly.
 
 <br>
 

@@ -1,3 +1,10 @@
+#     Copyright (C) 2022  birdybirdonline & awth13 - see LICENSE.md
+#     @ https://github.com/birdybirdonline/Linux-Arctis-7-Plus-ChatMix
+    
+#     Contact via Github in the first instance
+#     https://github.com/birdybirdonline
+#     https://github.com/awth13
+
 #!/bin/bash
 
 if [[ "$USER" == root ]]; then

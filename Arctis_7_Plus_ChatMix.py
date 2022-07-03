@@ -1,9 +1,28 @@
+"""   Copyright (C) 2022  birdybirdonline & awth13 - see LICENSE.md
+    @ https://github.com/birdybirdonline/Linux-Arctis-7-Plus-ChatMix
+    
+    Contact via Github in the first instance
+    https://github.com/birdybirdonline
+    https://github.com/awth13
+    
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    """
+
 import os
 import sys
 import signal
-import time
 import logging
-
 import traceback
 import re
 import usb.core
@@ -12,7 +31,9 @@ import usb.core
 class Arctis7PlusChatMix:
     def __init__(self):
 
+        # set to receive signal from systemd for termination
         signal.signal(signal.SIGTERM, self.__handle_sigterm)
+
         self.log = self._init_log()
         self.log.info("Initializing ac7pcm...")
 
@@ -67,9 +88,7 @@ class Arctis7PlusChatMix:
 
         # attempt to identify an Arctis sink via pactl
         try:
-            self.log.info("identifying Arctis device sink")
             pactl_short_sinks = os.popen("pactl list short sinks").readlines()
-            self.log.info(pactl_short_sinks)
             # grab any elements from list of pactl sinks that are Arctis 7
             arctis = re.compile('.*[aA]rctis.*7')
             arctis_sink = list(filter(arctis.match, pactl_short_sinks))[0] 
@@ -158,9 +177,9 @@ class Arctis7PlusChatMix:
         """
         
         self.log.info("Reading modulator USB input started")
-        print("_"*45)
-        print("Arctis 7+ ChatMix Enabled. Ctrl+C to Quit")
-        print("_"*45)
+        self.log.info("-"*45)
+        self.log.info("Arctis 7+ ChatMix Enabled!")
+        self.log.info("-"*45)
         while True:
             try:
                 # read the input of the USB signal. Signal is sent in 64-bit interrupt packets.
@@ -176,36 +195,29 @@ class Arctis7PlusChatMix:
             except usb.core.USBTimeoutError:
                 pass
             except usb.core.USBError:
-                self.log.error("USB input/output error - likely disconnect")
-                self.die_gracefully(skip_attach=True)
-            except KeyboardInterrupt:
-                self.log.info("Keyboard Interrupt signal, terminating...")
-                return self.die_gracefully()
+                self.log.fatal("USB input/output error - likely disconnect")
+                break
 
-    
     def __handle_sigterm(self, sig, frame):
         self.die_gracefully()
 
-    def die_gracefully(self, sink_creation_fail=False, skip_attach=False):
+    def die_gracefully(self, sink_creation_fail=False):
         """Kill the process and remove the VACs
         on fatal exceptions or SIGTERM / SIGINT
         """
         
         self.log.info('Cleanup on shutdown')
-        print(os.linesep)
-        print("_"*45)
-        print("Artcis 7+ ChatMix shutting down...")
-        print("_"*45)
         os.system(f"pactl set-default-sink {self.system_default_sink}")
 
         # cleanup virtual sinks if they exist
-        if sink_creation_fail == False and skip_attach == False:
+        if  sink_creation_fail == False:
+            self.log.info("Destroying virtual sinks...")
             os.system("pw-cli destroy Arctis_Game 1>/dev/null")
             os.system("pw-cli destroy Arctis_Chat 1>/dev/null")
 
-        ## removed temporarily for testing
-        # if not self.dev.is_kernel_driver_active(self.interface_num):
-        #     self.dev.finalize()
+        self.log.info("-"*45)
+        self.log.info("Artcis 7+ ChatMix shut down gracefully... Bye Bye!")
+        self.log.info("-"*45)
         sys.exit(0)
 
 # init
