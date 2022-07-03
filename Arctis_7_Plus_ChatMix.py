@@ -11,15 +11,16 @@ import usb.core
 class Arctis7PlusChatMix:
     def __init__(self):
 
-        signal.signal(signal.SIGTERM, self._handle_sigterm)
-        
+        signal.signal(signal.SIGTERM, self.__handle_sigterm)
+        self.log = self._init_log()
+
         # identify the arctis 7+ device
         try:
             self.dev=usb.core.find(idVendor=0x1038, idProduct=0x220e)
-        except Exception:
-            print(traceback.format_exc())
-            print("""Failed to identify the Arctis 7+ device. Please ensure it is connected.\n
-            Please note: This program only supports the '7+' model.""")
+        except Exception as e:
+            self.log.error("""Failed to identify the Arctis 7+ device.
+            Please ensure it is connected.\n
+            Please note: This program only supports the '7+' model.""", exc_info=True)
 
         # select its interface and USB endpoint, and capture the endpoint address
         try:
@@ -30,41 +31,45 @@ class Arctis7PlusChatMix:
             self.endpoint = self.interface.endpoints()[0]
             self.addr = self.endpoint.bEndpointAddress
 
-        except Exception:
-            print(traceback.format_exc())
-            print("Failure to identify relevant USB device's interface or endpoint. Shutting down...")
-            quit()
+        except Exception as e:
+            self.log.error("""Failure to identify relevant 
+            USB device's interface or endpoint. Shutting down...""", exc_info=True)
+            self.die_gracefully()
+
+        self.kernel_attached = True
 
         # detach if the device is active
         if self.dev.is_kernel_driver_active(self.interface_num):
             self.dev.detach_kernel_driver(self.interface_num)
-
+            self.kernel_attached = False
         try:
             self.VAC = self._init_VAC()
-        except:
-            print(traceback.format_exc())
-            print("Failed to start VAC!")
+        except Exception as e:
+            self.log.error("Failed to start VAC!", exc_info=True)
 
     def _init_log(self):
         log = logging.getLogger(__name__)
         log.setLevel(logging.DEBUG)
-        stdout_handler = log.StreamHandler()
-        stdout_handler.setLevel(log.DEBUG)
-        stdout_handler.setFormatter(log.Formatter('%(levelname)8s | %(message)s'))
+        stdout_handler = logging.StreamHandler()
+        stdout_handler.setLevel(logging.DEBUG)
+        stdout_handler.setFormatter(logging.Formatter('%(levelname)8s | %(message)s'))
         log.addHandler(stdout_handler)     
+        return (log)
 
     def _init_VAC(self):
-        '''Get name of default sink, establish virtual sink
-        and pipe its output to the default sink'''
+        """Get name of default sink, establish virtual sink
+        and pipe its output to the default sink
+        """
 
         # get the default sink id from pactl
+        self.system_default_sink = os.popen("pactl get-default-sink").read().strip()
         try:
             # use grep to identify the sink with arctis in the name, case insensitive
             try:
                 pactl_grep = os.popen("pactl list short sinks | grep -i Arctis").readlines()
-            except:
-                print("Couldn't find an Arctis device. Terminating...")
-                self.dieGracefully()
+            except Exception as e:
+                self.log.info("Couldn't find an Arctis device.", exc_info=True)
+                self.die_gracefully()
                 
             # split the arctis line 
             tabs_pattern = re.compile(r'\t')
@@ -75,20 +80,23 @@ class Arctis7PlusChatMix:
                 arctis_re = re.search(arctis_pattern, tabs_re[1])
                 default_sink = arctis_re.string
                 print(default_sink)
-            except:
-                print("Something wrong with Arctis definition in pactl list short sinks")
-                self.dieGracefully()
+            except Exception as e:
+                log.error.info("""Something wrong with Arctis 
+                definition in pactl list short sinks""", exc_info=True)
+                self.die_gracefully()
 
         except Exception:
-            print(traceback.format_exc())
-            print(""""Failure detecting default sink - likely your soundcard isn't 
-            recognized by ALSA or there is a permissions error""")
+            self.log.error(""""Failure detecting default sink - likely your soundcard isn't 
+            recognized by ALSA or there is a permissions error""",exc_info=True)
+            self.die_gracefully()
 
         # Destroy virtual sinks if they already existed incase of previous failure:
         try:
             os.system("pw-cli destroy Arctis_Game")
             os.system("pw-cli destroy Arctis_Chat")
-        except:
+        except Exception as e:
+            self.log.info("""Attempted to destroy sinks at init
+             but sinks did not already exist""", exec_info=True)
             print("VACs do not already exist. Creating...")
 
         # Instantiate our virtual sinks - Arctis_Chat and Arctis_Game
@@ -114,9 +122,10 @@ class Arctis7PlusChatMix:
                 audio.position=[FL FR]
                 }' 
             """)
-        except:
-            print("Failure to create node adapter - Arctis_Chat virtual device could not be created")
-            self.dieGracefully()
+        except Exception as E:
+            self.log.error("""Failure to create node adapter - 
+            Arctis_Chat virtual device could not be created""", exc_info=True)
+            self.die_gracefully(sink_fail=True)
 
         #route the virtual sink's L and R channels to the default system output
         try:
@@ -125,15 +134,18 @@ class Arctis7PlusChatMix:
             os.system(f"""pw-link "Arctis_Game:monitor_FR" "{default_sink}:playback_FR" """)
             os.system(f"""pw-link "Arctis_Chat:monitor_FL" "{default_sink}:playback_FL" """)
             os.system(f"""pw-link "Arctis_Chat:monitor_FR" "{default_sink}:playback_FR" """)
-        except:
-            print("Couldn't create the links to pipe LR from VAC to default device")
+        except Exception as e:
+            self.log.error("""Couldn't create the links to 
+            pipe LR from VAC to default device""", exc_info=True)
+            self.die_gracefully(sink_fail=True)
         
         # set the default sink to Arctis Game
         os.system('pactl set-default-sink Arctis_Game')
 
     def start_modulator_signal(self):
-        '''Listen to the USB device for modulator knob's signal 
-        and adjust volume accordingly'''
+        """Listen to the USB device for modulator knob's signal 
+        and adjust volume accordingly
+        """
         print("_"*45)
         print("Arctis 7+ ChatMix Enabled. Ctrl+C to Quit")
         print("_"*45)
@@ -152,25 +164,32 @@ class Arctis7PlusChatMix:
             except usb.core.USBTimeoutError:
                 pass
             except KeyboardInterrupt:
-                self.dieGracefully()
+                self.die_gracefully()
     
     def __handle_sigterm(self, sig, frame):
-        self.dieGracefully()
+        self.die_gracefully()
 
-    def dieGracefully(self):
-        '''Kill the process and remove the VACs
+    def die_gracefully(self, sink_fail=False):
+        """Kill the process and remove the VACs
         on fatal exceptions or SIGTERM / SIGINT
-        '''
-        self.log.info('Cleanup')
+        """
+        
+        self.log.info('Cleanup on shutdown')
         print(os.linesep)
         print("_"*45)
         print("Artcis 7+ ChatMix shutting down...")
         print("_"*45)
-        os.system("pw-cli destroy Arctis_Game")
-        os.system("pw-cli destroy Arctis_Chat")
+        os.system(f"pactl set-default-sink {self.system_default_sink}")
+
+        # cleanup virtual sinks if they exist
+        if sink_fail == False:
+            os.system("pw-cli destroy Arctis_Game")
+            os.system("pw-cli destroy Arctis_Chat")
+        if self.kernel_attached == False:
+            self.dev.detach_kernel_driver(self.interface)
         sys.exit(0)
 
 # init
 if __name__ == '__main__':
-    a7p_service = Arctis7PlusChatMix()
-    a7p_service.start_modulator_signal()
+    a7pcm_service = Arctis7PlusChatMix()
+    a7pcm_service.start_modulator_signal()
