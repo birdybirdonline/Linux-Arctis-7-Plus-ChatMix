@@ -216,7 +216,7 @@ class Arctis7PlusChatMix:
 
         if trigger is not None:
             self.log.info("-"*45)
-            self.log.FATAL("Failure reason: " + trigger)
+            self.log.fatal("Failure reason: " + trigger)
             self.log.info("-"*45)
             sys.exit(1)
         else:
