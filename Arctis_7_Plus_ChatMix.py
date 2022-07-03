@@ -44,6 +44,7 @@ class Arctis7PlusChatMix:
             self.log.error("""Failed to identify the Arctis 7+ device.
             Please ensure it is connected.\n
             Please note: This program only supports the '7+' model.""")
+            self.die_gracefully(trigger)
 
         # select its interface and USB endpoint, and capture the endpoint address
         try:
@@ -57,16 +58,14 @@ class Arctis7PlusChatMix:
         except Exception as e:
             self.log.error("""Failure to identify relevant 
             USB device's interface or endpoint. Shutting down...""")
-            self.die_gracefully()
+            self.die_gracefully(exc=True, trigger ="identification of USB endpoint")
 
         # detach if the device is active
         if self.dev.is_kernel_driver_active(self.interface_num):
             self.dev.detach_kernel_driver(self.interface_num)
 
-        try:
-            self.VAC = self._init_VAC()
-        except Exception as e:
-            self.log.error("Failed to start VAC!", exc_info=True)
+        self.VAC = self._init_VAC()
+
 
     def _init_log(self):
         log = logging.getLogger(__name__)
@@ -107,7 +106,7 @@ class Arctis7PlusChatMix:
             in pactl list short sinks regex matching.
             Likely no match found for device, check traceback.
             """, exc_info=True)
-            self.die_gracefully()
+            self.die_gracefully(trigger="No Arctis device match")
 
         # Destroy virtual sinks if they already existed incase of previous failure:
         try:
@@ -145,7 +144,7 @@ class Arctis7PlusChatMix:
         except Exception as E:
             self.log.error("""Failure to create node adapter - 
             Arctis_Chat virtual device could not be created""", exc_info=True)
-            self.die_gracefully(sink_creation_fail=True)
+            self.die_gracefully(sink_creation_fail=True, trigger="VAC node adapter")
 
         #route the virtual sink's L&R channels to the default system output's LR
         try:
@@ -166,7 +165,7 @@ class Arctis7PlusChatMix:
         except Exception as e:
             self.log.error("""Couldn't create the links to 
             pipe LR from VAC to default device""", exc_info=True)
-            self.die_gracefully(sink_fail=True)
+            self.die_gracefully(sink_fail=True, trigger="LR links")
         
         # set the default sink to Arctis Game
         os.system('pactl set-default-sink Arctis_Game')
@@ -201,7 +200,7 @@ class Arctis7PlusChatMix:
     def __handle_sigterm(self, sig, frame):
         self.die_gracefully()
 
-    def die_gracefully(self, sink_creation_fail=False):
+    def die_gracefully(self, sink_creation_fail=False, trigger=None):
         """Kill the process and remove the VACs
         on fatal exceptions or SIGTERM / SIGINT
         """
@@ -215,10 +214,16 @@ class Arctis7PlusChatMix:
             os.system("pw-cli destroy Arctis_Game 1>/dev/null")
             os.system("pw-cli destroy Arctis_Chat 1>/dev/null")
 
-        self.log.info("-"*45)
-        self.log.info("Artcis 7+ ChatMix shut down gracefully... Bye Bye!")
-        self.log.info("-"*45)
-        sys.exit(0)
+        if trigger is not None:
+            self.log.info("-"*45)
+            self.log.FATAL("Failure reason: " + trigger)
+            self.log.info("-"*45)
+            sys.exit(1)
+        else:
+            self.log.info("-"*45)
+            self.log.info("Artcis 7+ ChatMix shut down gracefully... Bye Bye!")
+            self.log.info("-"*45)
+            sys.exit(0)
 
 # init
 if __name__ == '__main__':
