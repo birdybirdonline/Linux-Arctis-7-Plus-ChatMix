@@ -43,7 +43,7 @@ echo "Installing udev rule to ${UDEV_DIR}${UDEV_CONFIG}."
 echo "You may need to provide your sudo password for this step."
 envsubst < "${CONFIG_DIR}${UDEV_CONFIG}" > "$UDEV_CONFIG"
 sudo cp "$UDEV_CONFIG" "$UDEV_DIR" || \
-    { echo "FATAL: Failed to create $SCRIPT_DIR" ; cleanup ; exit 1;}
+    { echo "FATAL: Failed to copy $UDEV_CONFIG" ; cleanup ; exit 1;}
 rm -f "$UDEV_CONFIG"
 
 echo
