@@ -30,6 +30,19 @@ and "Arctis 7+ Game" respectively, which the user can then assign accordingly as
 The script listens to the headset's USB dongle signals and interprets them in a way that can be meaningfully converted
 to adjust the audio when the user moves the dial on the headset.
 
+### Two Versions ###
+
+`install-a7pcm.sh` installs a daemon which ensures the chatmix dial controls the ChatMix balance on the headset.
+
+Alternatively, use `Install-AllSound7P_ChatMix.sh` installs a different version which will control the ChatMix balance
+on *any* default system device, e.g. speakers etc.
+
+For both versions at startup of the daemon the user must disconnect and reconnect the USB dongle from the machine. 
+
+For the AllSound version, ensure the device you wish to output sound to is set as the default device before reconnecting the dongle.
+
+For the Arctis version, the headset will be automatically set to the default device when the daemon starts.
+
 <br>
 
 ## Requirements
