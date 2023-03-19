@@ -44,7 +44,7 @@ class Arctis7PlusChatMix:
             self.log.error("""Failed to identify the Arctis 7+ device.
             Please ensure it is connected.\n
             Please note: This program only supports the '7+' model.""")
-            self.die_gracefully(trigger)
+            self.die_gracefully(trigger ="Couldn't find arctis7 model")
 
         # select its interface and USB endpoint, and capture the endpoint address
         try:
