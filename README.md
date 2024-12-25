@@ -96,7 +96,7 @@ The service will automatically set "Arctis 7+ Game" as the default device on sta
 - **Arctis 7+** (original development by [birdybirdonline](https://github.com/birdybirdonline))
 - **Arctis Nova Pro Wireless** (developed by [Giacomo Furlan](https://github.com/elegos)). The volume follows a logaritmic trend, setting 75% of the volume when the rocker is in the middle (I think on Windows the volume is still a little bit louder, but it's a good start).
 
-## How to add a new device
+## How to add the support to a new device
 
 The software is elastic enough to support other devices. In order you need to:
 
@@ -109,6 +109,15 @@ If your work does the job, consider forking the repository and open a pull reque
 ### Do I need to configure the `UdevDevice.device_initializer` for my new device?
 
 It depents on your device, actually. For example the Arctis Nova Pro Wireless' GameDAC requires it, otherwise you won't be able to manage the channels mix. If you're confused on how that device's `init_device` calls was made, it's ok: these packets have been sniffed via WireShark on Windows, and they're pretty much arcane data yet. Via a try and error approach, they worked out on Linux too, enabling the game/chat mixer on the DAC.
+
+### Help! I don't know how to configure the `UdevDevice`!
+
+- `name`: the name of the device (see the current devices to get an idea)
+- `vendor_id` / `product_id`: they're the couple ID values (ID xxxx:yyyy) found doing a simple `lsusb|grep -i arctis`
+- `chatmix_hid_interface`: try and error. If you stop in debug exploring the device itself, it should be a Human Interface Device, which limits the options (in case of the Arctis Nova Pro Wireless there are two HID interfaces).
+- `audio_position`: typically `['FL', 'FR']` (which is Front Left, Front Right)
+- `read_volume_data`: how to read the input data, the response is a tuple of integer numbers representing a percentage for game channel, chat channel (for example `return 100, 100`). Suggestion: just print the data and see the pattern. Printing the data will show the numbers as integers.
+- `device_initializer`: optional function to initialize the device once connected to the computer, for example to enable the GameDAC's mixer function. See previous section for details.
 
 
 # Acknowledgements
