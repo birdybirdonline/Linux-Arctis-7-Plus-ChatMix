@@ -51,7 +51,7 @@ def arctis_7plus_read_data_volume(read_input: list[int]) -> tuple[int, int]:
 arctis_nova_pro_wireless = ArctisNovaProWireless()
 
 udev_devices = [
-    UdevDevice('Arctis 7+', 0x1038, 0x220e, 7, ['FL', 'FR'], arctis_7plus_read_data_volume),
+    UdevDevice('Arctis 7+',                0x1038, 0x220e, 7, ['FL', 'FR'], arctis_7plus_read_data_volume),
     UdevDevice('Arctis Nova Pro Wireless', 0x1038, 0x12e0, 7, ['FL', 'FR'],
                arctis_nova_pro_wireless.manage_chatmix_input_data, arctis_nova_pro_wireless.init_device),
 ]
