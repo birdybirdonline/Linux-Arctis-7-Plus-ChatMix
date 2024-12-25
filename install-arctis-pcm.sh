@@ -11,7 +11,7 @@ source ./pyusb.sh
 
 CONFIG_DIR="system-config/"
 SYSTEMD_CONFIG="arctis-pcm.service"
-UDEV_CONFIG="91-steelseries-arctis.rules"
+UDEV_CONFIG="200-steelseries-arctis.rules"
 SCRIPT="Arctis_ChatMix.py"
 ARCTIS_DEVICES_FOLDER="arctis_devices"
 
