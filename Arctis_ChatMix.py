@@ -19,38 +19,21 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
     """
 
-from dataclasses import dataclass, field
 import os
 import sys
 import signal
 import logging
 import re
-from typing import Callable
 
 import usb.core
 
 from arctis_devices.arctis_7p import Arctis7Plus
 from arctis_devices.arctis_nova_pro_wireless import ArctisNovaProWireless
-
-
-@dataclass
-class UdevDevice:
-    name: str
-    vendor_id: int
-    product_id: int
-    chatmix_hid_interface: int  # USB HID for the ChatMix dial
-    audio_position: list[str]
-    read_volume_data: Callable[[list[int]], tuple[int, int]]  # out[0]: Game (%), out[1]: Chat (%)
-
-    device_initializer: Callable[[usb.core.Device, logging.Logger], None] = field(default=None)
-
-
-arctis_nova_pro_wireless = ArctisNovaProWireless()
+from arctis_devices.udev_device import UdevDevice
 
 udev_devices = [
-    UdevDevice('Arctis 7+',                0x1038, 0x220e, 7, ['FL', 'FR'], Arctis7Plus.manage_chatmix_input_data),
-    UdevDevice('Arctis Nova Pro Wireless', 0x1038, 0x12e0, 7, ['FL', 'FR'],
-               arctis_nova_pro_wireless.manage_chatmix_input_data, arctis_nova_pro_wireless.init_device),
+    Arctis7Plus.get_udev_device(),
+    ArctisNovaProWireless.get_udev_device(),
 ]
 
 

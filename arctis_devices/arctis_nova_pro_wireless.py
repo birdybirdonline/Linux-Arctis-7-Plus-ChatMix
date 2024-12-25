@@ -3,12 +3,23 @@ import math
 
 import usb.core
 
+from arctis_devices.device_manager import DeviceManager
+from arctis_devices.udev_device import UdevDevice
 
-class ArctisNovaProWireless:
+
+class ArctisNovaProWireless(DeviceManager):
     volume: float
 
     game_mix: int
     chat_mix: int
+
+    _instance: 'ArctisNovaProWireless'
+
+    @staticmethod
+    def getInstance():
+        if ArctisNovaProWireless._instance is None:
+            ArctisNovaProWireless._instance = ArctisNovaProWireless()
+        return ArctisNovaProWireless._instance
 
     def __init__(self):
         self.volume = 100  # Volume is always 100, it is managed by the GameDAC directly
@@ -16,15 +27,22 @@ class ArctisNovaProWireless:
         self.chat_mix = 100  # Default to equally mixed (should be set during interface configuration)
 
     @staticmethod
+    def get_udev_device(self) -> UdevDevice:
+        return UdevDevice('Arctis Nova Pro Wireless', 0x1038, 0x12e0, 7, ['FL', 'FR'],
+                          ArctisNovaProWireless.manage_chatmix_input_data, ArctisNovaProWireless.init_device)
+
+    @staticmethod
     def packet_0_filler(packet: list[int], size: int):
         return [*packet, *[0 for _ in range(size - len(packet))]]
 
-    def init_device(self, device: usb.core.Device, logger: Logger):
+    @staticmethod
+    def init_device(device: usb.core.Device, logger: Logger):
         '''
         Initializes the GameDAC Gen2, enabling the mixer.
         Kinda obscure, but seems to work on my machine (tm).
         (Packets and sequence taken from the Arctis Nova Pro Wireless via Wireshark)
         '''
+
         commands = [
             # Command, expects response
 
@@ -100,16 +118,19 @@ class ArctisNovaProWireless:
 
         return volume
 
+    @staticmethod
     def manage_chatmix_input_data(self, data: list[int]) -> tuple[int, int]:
+        manager = ArctisNovaProWireless.getInstance()
+
         # Volume control is
         if data[0] == 0x07 and data[1] == 0x25:
-            self.volume = ArctisNovaProWireless._normalize_chatmix_volume(data[2])
+            manager.volume = ArctisNovaProWireless._normalize_chatmix_volume(data[2])
 
         elif data[0] == 0x07 and data[1] == 0x45:
-            self.game_mix = data[2]  # Ranges from 0 to 100
-            self.chat_mix = data[3]  # Ranges from 0 to 100
+            manager.game_mix = data[2]  # Ranges from 0 to 100
+            manager.chat_mix = data[3]  # Ranges from 0 to 100
 
-        volume = (self.volume if self.volume is not None else 1)
+        volume = (manager.volume if manager.volume is not None else 1)
 
-        return int(round(volume * (self.game_mix if self.game_mix is not None else 100), 0)), \
-            int(round(volume * (self.chat_mix if self.chat_mix is not None else 100), 0))
+        return int(round(volume * (manager.game_mix if manager.game_mix is not None else 100), 0)), \
+            int(round(volume * (manager.chat_mix if manager.chat_mix is not None else 100), 0))

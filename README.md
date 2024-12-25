@@ -101,8 +101,8 @@ The service will automatically set "Arctis 7+ Game" as the default device on sta
 The software is elastic enough to support other devices. In order you need to:
 
 - Add a new set of rules in [system-config/200-steelseries-arctis.rules](system-config/200-steelseries-arctis.rules).
-- Add a new device manager in [arctis_devices](arctis_devices).
-- Add the new device manager in [Arctis_ChatMix.py](Arctis_ChatMix.py) under the `udev_devices` variable.
+- Add a new [DeviceManager](arctis_devices/device_manager.py) in [arctis_devices](arctis_devices).
+- Register the new device manager in [Arctis_ChatMix.py](Arctis_ChatMix.py) under the `udev_devices` variable.
 
 If your work does the job, consider forking the repository and open a pull request.
 
