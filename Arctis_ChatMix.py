@@ -29,6 +29,7 @@ from typing import Callable
 
 import usb.core
 
+from arctis_devices.arctis_7p import Arctis7Plus
 from arctis_devices.arctis_nova_pro_wireless import ArctisNovaProWireless
 
 
@@ -44,14 +45,10 @@ class UdevDevice:
     device_initializer: Callable[[usb.core.Device, logging.Logger], None] = field(default=None)
 
 
-def arctis_7plus_read_data_volume(read_input: list[int]) -> tuple[int, int]:
-    return read_input[1], read_input[2]
-
-
 arctis_nova_pro_wireless = ArctisNovaProWireless()
 
 udev_devices = [
-    UdevDevice('Arctis 7+',                0x1038, 0x220e, 7, ['FL', 'FR'], arctis_7plus_read_data_volume),
+    UdevDevice('Arctis 7+',                0x1038, 0x220e, 7, ['FL', 'FR'], Arctis7Plus.manage_chatmix_input_data),
     UdevDevice('Arctis Nova Pro Wireless', 0x1038, 0x12e0, 7, ['FL', 'FR'],
                arctis_nova_pro_wireless.manage_chatmix_input_data, arctis_nova_pro_wireless.init_device),
 ]
