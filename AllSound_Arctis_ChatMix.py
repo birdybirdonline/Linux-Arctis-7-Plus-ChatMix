@@ -28,8 +28,6 @@ import os
 import sys
 import signal
 import logging
-import traceback
-import re
 import usb.core
 
 

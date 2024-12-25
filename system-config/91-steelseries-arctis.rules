@@ -1,0 +1,9 @@
+# Arctis 7 Pro
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1038", ATTRS{idProduct}=="220e", OWNER="${USER}", GROUP="${USER}", MODE="0664", RUN+="/bin/logger 'Arctis 7 Pro is now managed via uaccess'"
+ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="1038", ATTRS{idProduct}=="220e", TAG+="systemd", ENV{SYSTEMD_ALIAS}="/dev/arctischatmix", RUN+="/bin/logger 'Arctis 7 Pro device added'"
+ACTION=="remove", SUBSYSTEM=="usb", ENV{PRODUCT}=="1038/220e/*", TAG+="systemd", RUN+="/bin/logger 'Arctis 7 Pro device removed'"
+
+# Arctis Nova Pro Wireless
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1038", ATTRS{idProduct}=="12e0", OWNER="${USER}", GROUP="${USER}", MODE="0664", RUN+="/bin/logger 'Arctis Nova Pro Wireless device is now managed via uaccess'"
+ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="1038", ATTRS{idProduct}=="12e0", TAG+="systemd", ENV{SYSTEMD_ALIAS}="/dev/arctischatmix", RUN+="/bin/logger 'Arctis Nova Pro Wireless device added'"
+ACTION=="remove", SUBSYSTEM=="usb", ENV{PRODUCT}=="1038/12e0/*", TAG+="systemd", RUN+="/bin/logger 'Arctis Nova Pro Wireless device removed'"

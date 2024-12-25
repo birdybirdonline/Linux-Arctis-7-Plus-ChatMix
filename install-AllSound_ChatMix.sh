@@ -7,15 +7,17 @@
 
 #!/bin/bash
 
+source ./pyusb.sh
+
 if [[ "$USER" == root ]]; then
     echo "Please run the install script as non-root user."
     exit 1
 fi
 
 CONFIG_DIR="system-config/"
-SYSTEMD_CONFIG="arctis7pcm.service"
-UDEV_CONFIG="91-steelseries-arctis-7p.rules"
-SCRIPT="AllSound7P_ChatMix.py"
+SYSTEMD_CONFIG="arctis-pcm.service"
+UDEV_CONFIG="91-steelseries-arctis.rules"
+SCRIPT="AllSound_Arctis_ChatMix.py"
 
 SCRIPT_DIR="$HOME/.local/bin/"
 SYSTEMD_DIR="$HOME/.config/systemd/user/"

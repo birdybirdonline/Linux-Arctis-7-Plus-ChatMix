@@ -7,15 +7,12 @@
 
 #!/bin/bash
 
-if [[ "$USER" == root ]]; then
-    echo "Please run the install script as non-root user."
-    exit 1
-fi
+source ./pyusb.sh
 
 CONFIG_DIR="system-config/"
-SYSTEMD_CONFIG="arctis7pcm.service"
-UDEV_CONFIG="91-steelseries-arctis-7p.rules"
-SCRIPT="Arctis_7_Plus_ChatMix.py"
+SYSTEMD_CONFIG="arctis-pcm.service"
+UDEV_CONFIG="91-steelseries-arctis.rules"
+SCRIPT="Arctis_ChatMix.py"
 
 SCRIPT_DIR="$HOME/.local/bin/"
 SYSTEMD_DIR="$HOME/.config/systemd/user/"
@@ -32,12 +29,12 @@ function cleanup {
 }
 
 if [[ -v UNINSTALL ]]; then
-    echo "Uninstalling Arctis 7+ ChatMix."
+    echo "Uninstalling Arctis ChatMix."
     echo "You may need to provide your sudo password for removing udev rule."
     cleanup ; exit 0
 fi
 
-echo "Installing Arctis 7+ ChatMix."
+echo "Installing Arctis ChatMix."
 echo "Installing script to ${SCRIPT_DIR}${SCRIPT}."
 if [[ ! -d "$SCRIPT_DIR" ]]; then
     mkdir -vp $SCRIPT_DIR || \
