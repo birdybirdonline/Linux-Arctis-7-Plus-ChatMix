@@ -13,7 +13,7 @@ class ArctisNovaProWireless(DeviceManager):
     game_mix: int
     chat_mix: int
 
-    _instance: 'ArctisNovaProWireless'
+    _instance: 'ArctisNovaProWireless' = None
 
     @staticmethod
     def getInstance():
@@ -27,7 +27,7 @@ class ArctisNovaProWireless(DeviceManager):
         self.chat_mix = 100  # Default to equally mixed (should be set during interface configuration)
 
     @staticmethod
-    def get_udev_device(self) -> UdevDevice:
+    def get_udev_device() -> UdevDevice:
         return UdevDevice('Arctis Nova Pro Wireless', 0x1038, 0x12e0, 7, ['FL', 'FR'],
                           ArctisNovaProWireless.manage_chatmix_input_data, ArctisNovaProWireless.init_device)
 
@@ -119,7 +119,7 @@ class ArctisNovaProWireless(DeviceManager):
         return volume
 
     @staticmethod
-    def manage_chatmix_input_data(self, data: list[int]) -> tuple[int, int]:
+    def manage_chatmix_input_data(data: list[int]) -> tuple[int, int]:
         manager = ArctisNovaProWireless.getInstance()
 
         # Volume control is
