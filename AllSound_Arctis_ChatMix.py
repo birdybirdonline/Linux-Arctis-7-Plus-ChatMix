@@ -102,9 +102,9 @@ class ArctisAllSoundChatMix:
 
         # Destroy virtual sinks if they already existed incase of previous failure:
         try:
-            destroy_a7p_game = os.system("pw-cli destroy ChatMix_Game 2>/dev/null")
-            destroy_a7p_chat = os.system("pw-cli destroy ChatMix_Chat 2>/dev/null")
-            if destroy_a7p_game == 0 or destroy_a7p_chat == 0:
+            destroy_arctis_game = os.system("pw-cli destroy ChatMix_Game 2>/dev/null")
+            destroy_arctis_chat = os.system("pw-cli destroy ChatMix_Chat 2>/dev/null")
+            if destroy_arctis_game == 0 or destroy_arctis_chat == 0:
                 raise Exception
         except Exception as e:
             self.log.info("""Attempted to destroy old VAC sinks at init but none existed""")
