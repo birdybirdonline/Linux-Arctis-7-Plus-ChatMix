@@ -22,7 +22,6 @@ class ArctisNovaProWireless(DeviceManager):
         return ArctisNovaProWireless._instance
 
     def __init__(self):
-        self.volume = 1  # Volume is always 100, it is managed by the GameDAC directly
         self.game_mix = 100  # Default to equally mixed (should be set during interface configuration)
         self.chat_mix = 100  # Default to equally mixed (should be set during interface configuration)
 
@@ -105,32 +104,19 @@ class ArctisNovaProWireless(DeviceManager):
             # Ignore the responses for now, as I haven't figured out yet their significance.
 
     @staticmethod
-    def _normalize_chatmix_volume(volume: int) -> int:
-        '''
-        Normalize the raw volume to a value between 0 and 1
-        '''
-        volume = volume / 56  # number between 0 and 1
-        volume = 1 - volume  # invert
-
-        # Apply a logarithmic trend (like how it seems to be working on Windows via GG software)
-        volume = max(volume, 1e-6)  # avoid log(0)
-        volume = math.log10(volume * 9 + 1)
-
-        return volume
-
-    @staticmethod
     def manage_chatmix_input_data(data: list[int]) -> tuple[int, int]:
         manager = ArctisNovaProWireless.getInstance()
 
-        # Volume control is
+        # Volume control is managed by the GameDAC
         if data[0] == 0x07 and data[1] == 0x25:
-            manager.volume = ArctisNovaProWireless._normalize_chatmix_volume(data[2])
+            # Volume is data[2], if needed for any purpose (which ranges from -56 (0%) to 0 (100%))
+            pass
 
         elif data[0] == 0x07 and data[1] == 0x45:
             manager.game_mix = data[2]  # Ranges from 0 to 100
             manager.chat_mix = data[3]  # Ranges from 0 to 100
 
-        volume = (manager.volume if manager.volume is not None else 1)
+        # The volume is managed by the GameDAC directly, so we only need to set the mix
 
-        return int(round(volume * (manager.game_mix if manager.game_mix is not None else 100), 0)), \
-            int(round(volume * (manager.chat_mix if manager.chat_mix is not None else 100), 0))
+        return int(round(manager.game_mix if manager.game_mix is not None else 100, 0)), \
+            int(round(manager.chat_mix if manager.chat_mix is not None else 100, 0))
