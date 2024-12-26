@@ -1,4 +1,4 @@
-# Linux-Arctis--ChatMix
+# Linux-Arctis-ChatMix
 
 ##***Important Licensing Notice**##
 
@@ -32,9 +32,9 @@ to adjust the audio when the user moves the dial on the headset.
 
 ### Two Versions ###
 
-`install-a7pcm.sh` installs a daemon which ensures the chatmix dial controls the ChatMix balance on the headset.
+`install-arctis-pcm.sh` installs a daemon which ensures the chatmix dial controls the ChatMix balance on the headset.
 
-Alternatively, use `install-AllSound7P_ChatMix.sh` installs a different version which will control the ChatMix balance
+Alternatively, use `install-AllSound_ChatMix.sh` installs a different version which will control the ChatMix balance
 on *any* default system device, e.g. speakers etc.
 
 For both versions at startup of the daemon the user must disconnect and reconnect the USB dongle from the machine. 
