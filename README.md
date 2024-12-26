@@ -100,7 +100,7 @@ The service will automatically set "Arctis 7+ Game" as the default device on sta
 
 The software is elastic enough to support other devices. In order you need to:
 
-- Add a new set of rules in [system-config/200-steelseries-arctis.rules](system-config/200-steelseries-arctis.rules).
+- Add a new set of rules in [system-config/200-steelseries-arctis.rules](system-config/200-steelseries-arctis.rules) -> if having troubles with udev selector (see: composite USB device), you might start from `udevadm info --attribute-walk --name=/dev/input/by-id/usb-SteelSeries_Arctis_[your specific device here]`.
 - Add a new [DeviceManager](arctis_devices/device_manager.py) in [arctis_devices](arctis_devices).
 - Register the new device manager in [arctis_devices/config.py](arctis_devices/config.py) under the `udev_devices` variable.
 
