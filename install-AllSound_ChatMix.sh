@@ -16,7 +16,7 @@ fi
 
 CONFIG_DIR="system-config/"
 SYSTEMD_CONFIG="arctis-pcm.service"
-UDEV_CONFIG="200-steelseries-arctis.rules"
+UDEV_CONFIG="91-steelseries-arctis.rules"
 SCRIPT="AllSound_Arctis_ChatMix.py"
 
 SCRIPT_DIR="$HOME/.local/bin/"

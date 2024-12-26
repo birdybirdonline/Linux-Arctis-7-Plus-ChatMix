@@ -11,7 +11,7 @@ source ./pyusb.sh
 
 CONFIG_DIR="system-config/"
 SYSTEMD_CONFIG="arctis-pcm.service"
-UDEV_CONFIG="200-steelseries-arctis.rules"
+UDEV_CONFIG="91-steelseries-arctis.rules"
 SCRIPT="Arctis_ChatMix.py"
 ARCTIS_DEVICES_FOLDER="arctis_devices"
 
@@ -52,6 +52,7 @@ envsubst < "${CONFIG_DIR}${UDEV_CONFIG}" > "$UDEV_CONFIG"
 sudo cp "$UDEV_CONFIG" "$UDEV_DIR" || \
     { echo "FATAL: Failed to copy $UDEV_CONFIG" ; cleanup ; exit 1;}
 sudo udevadm control --reload
+sudo udevadm trigger
 rm -f "$UDEV_CONFIG"
 
 echo
