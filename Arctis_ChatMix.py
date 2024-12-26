@@ -60,7 +60,7 @@ class ArctisChatMix:
         if self.dev is None:
             self.log.error(f"""Failed to identify the Arctis device.
             Please ensure it is connected.\n
-            Please note: This program supports the following models: {', '.join(udev_devices.keys())}.""")
+            Please note: This program supports the following models: {', '.join([d.name for d in udev_devices])}.""")
             self.die_gracefully(trigger="Couldn't find any Arctis model")
 
         # select its interface and USB endpoint, and capture the endpoint address
