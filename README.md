@@ -94,7 +94,7 @@ The service will automatically set "Arctis 7+ Game" as the default device on sta
 ## Supported devices
 
 - **Arctis 7+** (original development by [birdybirdonline](https://github.com/birdybirdonline))
-- **Arctis Nova Pro Wireless** (developed by [Giacomo Furlan](https://github.com/elegos)). The volume follows a logaritmic trend, setting 75% of the volume when the rocker is in the middle (I think on Windows the volume is still a little bit louder, but it's a good start).
+- **Arctis Nova Pro Wireless** (developed by [Giacomo Furlan](https://github.com/elegos)). The volume is managed by the GameDAC, while the mix is managed from a software point of view.
 
 ## How to add the support to a new device
 
