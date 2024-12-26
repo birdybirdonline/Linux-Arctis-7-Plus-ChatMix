@@ -22,7 +22,7 @@ class ArctisNovaProWireless(DeviceManager):
         return ArctisNovaProWireless._instance
 
     def __init__(self):
-        self.volume = 100  # Volume is always 100, it is managed by the GameDAC directly
+        self.volume = 1  # Volume is always 100, it is managed by the GameDAC directly
         self.game_mix = 100  # Default to equally mixed (should be set during interface configuration)
         self.chat_mix = 100  # Default to equally mixed (should be set during interface configuration)
 
