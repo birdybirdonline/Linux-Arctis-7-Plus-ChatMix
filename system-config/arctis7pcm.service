@@ -1,7 +1,6 @@
 [Unit]
 Description=Arctis 7+ ChatMix
 Requisite=dev-arctis7.device
-BindsTo=dev-arctis7.device
 After=dev-arctis7.device
 StartLimitIntervalSec=1m
 StartLimitBurst=5
